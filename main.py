@@ -166,12 +166,12 @@ class Game:
 
         #pairs and three/four of a kinds
         kindHands = []
-        handKinds = HandData([],None)
         kindsNames = [None,"Pair","Three of a Kind","Four of a Kind"]
 
         for i in cards:
             cardsNoI = cards.copy()
             cardsNoI.remove(i)
+            handKinds = HandData([],None)
             for ii in cardsNoI:
                 if ii.rank == i.rank:
 
@@ -179,4 +179,10 @@ class Game:
                     handKinds.cards.append(ii)
             kindHands.append(handKinds)
         hands += kindHands
+
+
+        # straights
+
+
+
 
