@@ -11,7 +11,8 @@ class HandData:
         if self.hand != None:
             for i in self.cards:
                 self.score += i.value
-
+    def __str__(self):
+        return f"{utils.cardObjectsToStrings(self.cards)} {self.hand}"
 class Card:
     def __init__(self,rank,suit):
         global ranks
@@ -70,7 +71,7 @@ class LocalPlayerData:
     
 class Utilities:
     def cardValueSort(self,cards):
-        #Bubble Sort
+        #Bubble Sort (ascending)
         end = False
         sortedList = cards.copy()
         while not end:
@@ -135,7 +136,7 @@ def restart():
 
 class Game:
     def __init__(self,players,deck):
-        pass
+        self.update("pre-flop")
 
     def update(self,stage):
         match stage:
@@ -155,7 +156,7 @@ class Game:
                 pass
 
             case _:
-                raise Exception("Invalid update stage value")
+                raise Exception(f"Invalid update stage value, {stage}, at {self}")
             
     def checkHand(self,cards):
         
@@ -174,7 +175,6 @@ class Game:
             handKinds = HandData([],None)
             for ii in cardsNoI:
                 if ii.rank == i.rank:
-
                     handKinds.hand = kindsNames[kindsNames.index(handKinds.hand) + 1]
                     handKinds.cards.append(ii)
             kindHands.append(handKinds)
@@ -182,7 +182,52 @@ class Game:
 
 
         # straights
+        def straightCheck(handCards):
+            bestHandFound = HandData([],"Straight")
+            cardList = utils.cardValueSort(handCards.copy()) 
+            cardList.reverse()
+            #creates a list of tuples consisting of card objects and value (for straights to be 1 and 14)
+            for index in range(len(cardList)):
+                object = cardList[index]
+                cardList[index] = (object,object.value)
+                if object.rank == "Ace":
+                    cardList.append((object,1))
+            for index in range(len(cardList) - 1):
+
+                difference = cardList[index][1] - cardList[index + 1][1]
+                if difference == 1:
+                    bestHandFound.hand.append(cardList[index][0])
+                if difference < 0:
+                    raise Exception(f'Invalid straight difference, "{difference}", at {self}, with the cards being {handCards}')
+                if difference == 0:
+                    pass
+                else:
+                    bestHandFound.hand = []
+            if len(bestHandFound.hand) == 5:
+                return bestHandFound
+            return None
+    
+        bestHandStraights = straightCheck(cards)
+
+        #flushes and sFlushes TODO
 
 
+        bestHandFlushes = HandData([],None)
+        flushSuits = {}
+        sFlushSuits = {}
+        flushSpecial = utils.cardValueSort(cards.copy())
+        flushSpecial.reverse()
+
+        for suit in suits:
+            flushSuits[suit] = []
+            sFlushSuits[suit] = []
+
+        for suit in flushSuits:
+            for card in flushSpecial:
+                if card.suit == suit:
+                    sFlushSuits[suit].append(card)
+                    if len(flushSuits[suit]) < 5:
+                        flushSuits[suit].append(card)
 
 
+        
